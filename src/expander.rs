@@ -26,11 +26,11 @@ fn find_eligable_under(path: &Path, files: &mut Vec<PathBuf>) -> Result<()> {
     Ok(())
 }
 
-enum ColorOutputRep {
+pub enum ColorOutputRep {
     Hash(bool), LinHash(bool), CssRgb, CssLch
 }
 
-fn fmt_color(col: crate::palette::Lcha, output_type: ColorOutputRep, with_alpha: bool) -> String {
+pub fn fmt_color(col: crate::palette::Lcha, output_type: ColorOutputRep, with_alpha: bool) -> String {
     match output_type {
         ColorOutputRep::Hash(alpha_at_start) => {
             let (fcr, fcg, fcb, fca): (u8,u8,u8,u8) = palette::Srgba::from(col).clamp().into_format().into_components();

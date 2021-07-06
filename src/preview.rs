@@ -77,3 +77,27 @@ pub fn run(palette: &Palette, show_shades: bool, path: &std::path::Path) -> Resu
     stdout.flush()?;
     Ok(())
 }
+
+pub fn eval(palette: &Palette, expr: String, colored: bool, output_format: String) -> Result<()> {
+    let color = crate::palette::color_parser::color(&expr)?.resolve(palette)?;
+    let col: (u8,u8,u8,u8) = palette::Srgba::from(color).clamp().into_format().into_components();
+    use crate::expander::ColorOutputRep;
+    let output_type = match output_format.chars().nth(0) {
+        Some('#') => ColorOutputRep::Hash(false),
+        Some('~') => ColorOutputRep::LinHash(false),
+        Some('$') => ColorOutputRep::CssRgb,
+        Some('!') => ColorOutputRep::CssLch,
+        _ => bail!("invalid output format {}", output_format)
+    };
+    let with_alpha = output_format.chars().nth(1).map_or(false, |c| c == 'a');
+    let mut stdout = std::io::stdout();
+    if colored {
+        queue!(stdout, SetForegroundColor(if color.l > 50.0 { Color::Black } else { Color::White }))?;
+        queue!(stdout, SetBackgroundColor(Color::Rgb {
+            r: col.0, g: col.1, b: col.2
+        }))?;
+    }
+    queue!(stdout, Print(crate::expander::fmt_color(color, output_type, with_alpha)), ResetColor)?;
+    stdout.flush()?;
+    Ok(())
+}
