@@ -18,7 +18,8 @@ pub fn run(palette: &Palette, show_shades: bool, path: &std::path::Path) -> Resu
         )?;
 
     let mut colors: Vec<_> = palette.colors.iter().collect();
-    colors.sort_by(|(n1,c1), (n2, c2)| match c1.hue.to_raw_degrees().partial_cmp(&c2.hue.to_raw_degrees()) {
+    // we need a way to keep dark colors and light colors seperate as well
+    colors.sort_by(|(n1,c1), (n2, c2)| match (c1.l*c1.hue.to_raw_degrees()).partial_cmp(&(c2.hue.to_raw_degrees()*c2.l)) {
         None | Some(std::cmp::Ordering::Equal) => { n1.cmp(n2) },
         o => o.unwrap()
     });
