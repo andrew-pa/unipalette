@@ -10,9 +10,11 @@ pub enum ColorSpec<'s> {
     Lch(Lcha),
     Shade(Box<ColorSpec<'s>>, f32),
     Saturate(Box<ColorSpec<'s>>, f32),
+    WithLightness(Box<ColorSpec<'s>>, f32),
     WithChroma(Box<ColorSpec<'s>>, f32),
     WithAlpha(Box<ColorSpec<'s>>, f32),
-    Mix(Box<ColorSpec<'s>>, Box<ColorSpec<'s>>, f32)
+    Mix(Box<ColorSpec<'s>>, Box<ColorSpec<'s>>, f32),
+    Complement(Box<ColorSpec<'s>>)
 }
 
 peg::parser!{
@@ -29,11 +31,14 @@ peg::parser!{
             = ['l'|'L'] l:number() ['c'|'C'] c:number() ['h'|'H'] h:number() { Lcha::new(l,c,h,1.0) }
 
         pub rule color() -> ColorSpec<'input> = precedence! {
+            "~" a:(@) { ColorSpec::Complement(Box::new(a)) }
+            --
             a:(@) whitespace()? "*" c:number() "*" whitespace()? b:@ { ColorSpec::Mix(Box::new(a), Box::new(b), c) }
             --
             c:@ whitespace() "ch" p:number() { ColorSpec::WithChroma(Box::new(c), p) }
             c:@ whitespace() "st" p:number() { ColorSpec::Saturate(Box::new(c), p) }
             c:@ whitespace() "li" x:number() { ColorSpec::Shade(Box::new(c), x) }
+            c:@ whitespace() "li=" x:number() { ColorSpec::WithLightness(Box::new(c), x) }
             x:@ whitespace()? "a" a:number() { ColorSpec::WithAlpha(Box::new(x), a) }
             --
             lch:lch_literal() { ColorSpec::Lch(lch) }
@@ -62,9 +67,11 @@ impl<'s> ColorSpec<'s> {
             ColorSpec::Lch(c) => Ok(*c),
             ColorSpec::Shade(c, p) => c.resolve(palette).map(|c| c.lighten(*p / 100.0)),
             ColorSpec::Saturate(c, p) => c.resolve(palette).map(|c| c.saturate(*p / 100.0)),
-            ColorSpec::WithChroma(c, p) => c.resolve(palette).map(|mut c| {c.chroma = *p; return c;}),// c.saturate(*p / 100.0)),
-            ColorSpec::WithAlpha(c, p) => c.resolve(palette).map(|mut c| {c.alpha = *p/100.0; return c;}),// c.saturate(*p / 100.0)),
+            ColorSpec::WithChroma(c, p) => c.resolve(palette).map(|mut c| {c.chroma = *p; return c;}),
+            ColorSpec::WithAlpha(c, p) => c.resolve(palette).map(|mut c| {c.alpha = *p/100.0; return c;}),
+            ColorSpec::WithLightness(c, p) => c.resolve(palette).map(|mut c| {c.l = *p; return c;}),
             ColorSpec::Mix(a, b, f) => a.resolve(palette).and_then(|a| b.resolve(palette).map(|b| (a,b))).map(|(a,b)| a.mix(&b, *f)),
+            ColorSpec::Complement(c) => c.resolve(palette).map(|mut c| { c.hue += 180.0; return c;}),
         }
     }
 }

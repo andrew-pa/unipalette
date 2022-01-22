@@ -44,6 +44,9 @@ purple li+50
 
 # set the chroma value directly, making a gray
 purple ch10
+
+# set the lightness value directly
+purple li=50
 ```
 
 Colors can have a specified alpha value as well. By default all colors are opaque.
@@ -58,6 +61,11 @@ Colors can be mixed using the mix operator:
 purple *0.5* $yellow
 ```
 Sometimes the mix operator can have surprising results, because it is linear interpolation.
+
+You can compute the complement of a color:
+```
+cyan=~$orange
+```
 
 Parenthesis can also be used to group expressions.
 
