@@ -52,7 +52,8 @@ struct Options {
 fn main() -> Result<()> {
     let opts = Options::parse();
 
-    let palette = palette::load_palette(&opts.palette)?;
+    let source = std::fs::read_to_string(&opts.palette)?;
+    let palette = palette::read_palette(&source)?;
 
     match opts.subcmd {
         Commands::Preview { show_shades } => {

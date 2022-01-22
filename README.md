@@ -64,13 +64,32 @@ Sometimes the mix operator can have surprising results, because it is linear int
 
 You can compute the complement of a color:
 ```
-cyan=~$orange
+# cyan is the complement of orange
+~$orange
+```
+
+Once a function has defined, you can call it to compute a new color:
+```
+# a lovely yellow
+my_mix($red, $green)
 ```
 
 Parenthesis can also be used to group expressions.
 
+### Color functions
+Functions that operate on colors can be defined in palette files in the following way:
+
+```
+# fn <name>(<args>) = <body>
+fn my_mix(a, b) = a *0.5* b
+fn const() = $orange
+```
+
+The function body is just any regular color expression. The argument identifiers will be bound with the colors passed in when the function is called.
+You cannot define a function inside a color reference in a different file, but you can call them.
+
 ### Color palettes
-A color palette file consists of a list of color definitions, one per line. `#` can be used to comment out lines. Once defined, the color can be referred to by name.
+A color palette file consists of a list of color or function definitions, one per line. `#` can be used to comment out lines. Once defined, the color can be referred to by name.
 
 ```
 purple=l40c120h300
