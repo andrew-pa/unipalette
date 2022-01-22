@@ -1,5 +1,5 @@
-use std::{collections::HashMap, path::Path};
-use anyhow::*;
+use std::collections::HashMap;
+use anyhow::{Result, anyhow};
 
 pub type Lcha = palette::Lcha<palette::white_point::D65>;
 
@@ -92,7 +92,7 @@ impl<'s> ColorSpec<'s> {
             },
             ColorSpec::Named(n) => palette::named::from_str(*n)
                 .map(|c| {
-                    let col = palette::Lch::from_rgb(c.into_format().into_linear());
+                    let col = palette::Lch::from_color(c.into_format().into_linear());
                     Lcha::new(col.l, col.chroma, col.hue, 1.0)
                 } )
                 .ok_or(anyhow!("unknown color {}", n)),
@@ -122,7 +122,7 @@ impl<'s> ColorSpec<'s> {
 
 pub fn read_palette<'s>(src: &'s str) -> Result<Palette<'s>> {
     let mut p = Palette { colors: HashMap::new(), functions: HashMap::new() };
-    for (ix, ln) in src.lines().enumerate() {
+    for ln in src.lines() {
         if ln.starts_with('#') || ln.len() == 0 { continue; }
         match color_parser::palette_def(ln)? {
             PaletteItem::Color(name, spec) => {

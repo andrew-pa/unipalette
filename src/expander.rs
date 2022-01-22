@@ -1,11 +1,11 @@
 
 use std::{fs::read_dir, path::{ Path, PathBuf }};
-use anyhow::*;
+use anyhow::{Result, anyhow};
 use rayon::prelude::*;
 use crate::palette::{Palette, color_parser};
 use std::io::Write;
 use regex::{Regex, Captures};
-use palette::Limited;
+use palette::{Clamp, FromColor};
 
 lazy_static::lazy_static! {
     static ref SRC_REGEX: Regex =
@@ -33,7 +33,7 @@ pub enum ColorOutputRep {
 pub fn fmt_color(col: crate::palette::Lcha, output_type: ColorOutputRep, with_alpha: bool) -> String {
     match output_type {
         ColorOutputRep::Hash(alpha_at_start) => {
-            let (fcr, fcg, fcb, fca): (u8,u8,u8,u8) = palette::Srgba::from(col).clamp().into_format().into_components();
+            let (fcr, fcg, fcb, fca): (u8,u8,u8,u8) = palette::Srgba::from_color(col).clamp().into_format().into_components();
             if with_alpha {
                 if alpha_at_start {
                     format!("#{:02x}{:02x}{:02x}{:02x}", fca, fcr, fcg, fcb)
@@ -45,7 +45,7 @@ pub fn fmt_color(col: crate::palette::Lcha, output_type: ColorOutputRep, with_al
             }
         },
         ColorOutputRep::LinHash(alpha_at_start) => {
-            let (mut fcr, fcg, fcb, mut fca): (u8,u8,u8,u8) = palette::LinSrgba::from(col).clamp().into_format().into_components();
+            let (fcr, fcg, fcb, fca): (u8,u8,u8,u8) = palette::LinSrgba::from_color(col).clamp().into_format().into_components();
             if with_alpha {
                 if alpha_at_start {
                     format!("#{:02x}{:02x}{:02x}{:02x}", fca, fcr, fcg, fcb)
@@ -57,7 +57,7 @@ pub fn fmt_color(col: crate::palette::Lcha, output_type: ColorOutputRep, with_al
             }
         },
         ColorOutputRep::CssRgb => {
-            let (fcr, fcg, fcb, fca): (f32,f32,f32,f32) = palette::Srgba::from(col).clamp().into_format().into_components();
+            let (fcr, fcg, fcb, fca): (f32,f32,f32,f32) = palette::Srgba::from_color(col).clamp().into_format().into_components();
             if with_alpha {
                 format!("rgba({:.2}%, {:.2}%, {:.2}%, {:.2})", fcr*100.0, fcg*100.0, fcb*100.0, fca)
             } else {

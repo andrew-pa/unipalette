@@ -1,13 +1,13 @@
 
 use anyhow::*;
-use clap::{AppSettings, Clap};
+use clap::StructOpt;
 use std::path::PathBuf;
 
 mod palette;
 mod preview;
 mod expander;
 
-#[derive(Clap)]
+#[derive(clap::Parser)]
 enum Commands {
     /// Preview a color palette
     Preview {
@@ -38,9 +38,8 @@ enum Commands {
     }
 }
 
-#[derive(Clap)]
-#[clap(about = clap::crate_description!(), author = clap::crate_authors!(), version = clap::crate_version!())]
-#[clap(setting = AppSettings::ColoredHelp)]
+#[derive(clap::Parser)]
+#[clap(about, author, version)]
 struct Options {
     /// Specify color palette file to use
     palette: PathBuf,

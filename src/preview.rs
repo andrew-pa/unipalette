@@ -1,9 +1,9 @@
 
-use anyhow::*;
+use anyhow::{Result, bail};
 use crate::palette::Palette;
 use std::io::Write;
 use crossterm::{queue, style::{Attribute, Color, Print, ResetColor, SetAttribute, SetBackgroundColor, SetForegroundColor}};
-use palette::Limited;
+use palette::{Clamp, FromColor};
 
 pub fn run(palette: &Palette, show_shades: bool, path: &std::path::Path) -> Result<()> {
     use palette::Shade;
@@ -43,7 +43,7 @@ pub fn run(palette: &Palette, show_shades: bool, path: &std::path::Path) -> Resu
                 queue!(stdout, Print(" "))?;
             }
             for sh in shades {
-                let col = palette::Srgb::from(color.lighten(sh)).into_format().into_components();
+                let col = palette::Srgb::from_color(color.lighten(sh)).into_format().into_components();
                 queue!(stdout, SetForegroundColor(Color::Rgb {
                     r: col.0, g: col.1, b: col.2
                 }), Print("█████"))?;
@@ -60,7 +60,7 @@ pub fn run(palette: &Palette, show_shades: bool, path: &std::path::Path) -> Resu
                 format!("{:^16}", name)
             };
 
-            let col: (u8,u8,u8,u8) = palette::Srgba::from(*color).clamp().into_format().into_components();
+            let col: (u8,u8,u8,u8) = palette::Srgba::from_color(*color).clamp().into_format().into_components();
             queue!(stdout, SetForegroundColor(if color.l > 50.0 { Color::Black } else { Color::White }))?;
             queue!(stdout, SetBackgroundColor(Color::Rgb {
                 r: col.0, g: col.1, b: col.2
@@ -80,7 +80,7 @@ pub fn run(palette: &Palette, show_shades: bool, path: &std::path::Path) -> Resu
 
 pub fn eval(palette: &Palette, expr: String, colored: bool, output_format: String) -> Result<()> {
     let color = crate::palette::color_parser::color(&expr)?.resolve(palette)?;
-    let col: (u8,u8,u8,u8) = palette::Srgba::from(color).clamp().into_format().into_components();
+    let col: (u8,u8,u8,u8) = palette::Srgba::from_color(color).clamp().into_format().into_components();
     use crate::expander::ColorOutputRep;
     let output_type = match output_format.chars().nth(0) {
         Some('#') => ColorOutputRep::Hash(false),
