@@ -1,6 +1,6 @@
 
 use anyhow::*;
-use clap::StructOpt;
+use clap::Parser;
 use std::path::PathBuf;
 
 mod palette;
@@ -33,13 +33,17 @@ enum Commands {
         /// '~' => Linear sRGB hex,
         /// '$' => CSS RGB decimal,
         /// '~' => CSS LCH decimal
-        #[clap(short, default_value="#")]
+        #[clap(default_value="#")]
+        #[arg(short)]
         output_format: String
     }
 }
 
 #[derive(clap::Parser)]
-#[clap(about, author, version)]
+#[clap()]
+#[command(about)]
+#[command(author)]
+#[command(version)]
 struct Options {
     /// Specify color palette file to use
     palette: PathBuf,
