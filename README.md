@@ -34,7 +34,7 @@ Operators can affect colors, changing their lightness or saturation.
 ```
 # purple from above, but 50% more saturated
 purple st+50
-# purple from above, but 50% les saturated
+# purple from above, but 50% less saturated
 purple st-50
 
 # purple from above, but 50% darker

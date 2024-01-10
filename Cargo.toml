@@ -1,6 +1,6 @@
 [package]
 name = "unipalette"
-version = "0.4.1"
+version = "0.4.2"
 edition = "2018"
 description = "Color macro system for unified system color themes across configuration files"
 authors = [ "Andrew Palmer <andrew.pa@outlook.com>" ]

@@ -82,7 +82,7 @@ pub fn eval(palette: &Palette, expr: String, colored: bool, output_format: Strin
     let color = crate::palette::color_parser::color(&expr)?.resolve(palette)?;
     let col: (u8,u8,u8,u8) = palette::Srgba::from_color(color).clamp().into_format().into_components();
     use crate::expander::ColorOutputRep;
-    let output_type = match output_format.chars().nth(0) {
+    let output_type = match output_format.chars().next() {
         Some('#') => ColorOutputRep::Hash(false),
         Some('~') => ColorOutputRep::LinHash(false),
         Some('$') => ColorOutputRep::CssRgb,

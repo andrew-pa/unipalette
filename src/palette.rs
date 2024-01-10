@@ -90,7 +90,7 @@ impl<'s> ColorSpec<'s> {
                 local_bindings.and_then(|lb| lb.get(*i).cloned())
                     .or_else(|| palette.colors.get(*i).cloned()).ok_or(anyhow!("unknown id {}", i))
             },
-            ColorSpec::Named(n) => palette::named::from_str(*n)
+            ColorSpec::Named(n) => palette::named::from_str(n)
                 .map(|c| {
                     let col = palette::Lch::from_color(c.into_format().into_linear());
                     Lcha::new(col.l, col.chroma, col.hue, 1.0)
@@ -99,11 +99,11 @@ impl<'s> ColorSpec<'s> {
             ColorSpec::Lch(c) => Ok(*c),
             ColorSpec::Shade(c, p) => c.resolve_b(palette, local_bindings).map(|c| c.lighten(*p / 100.0)),
             ColorSpec::Saturate(c, p) => c.resolve_b(palette, local_bindings).map(|c| c.saturate(*p / 100.0)),
-            ColorSpec::WithChroma(c, p) => c.resolve_b(palette, local_bindings).map(|mut c| {c.chroma = *p; return c;}),
-            ColorSpec::WithAlpha(c, p) => c.resolve_b(palette, local_bindings).map(|mut c| {c.alpha = *p/100.0; return c;}),
-            ColorSpec::WithLightness(c, p) => c.resolve_b(palette, local_bindings).map(|mut c| {c.l = *p; return c;}),
+            ColorSpec::WithChroma(c, p) => c.resolve_b(palette, local_bindings).map(|mut c| {c.chroma = *p; c}),
+            ColorSpec::WithAlpha(c, p) => c.resolve_b(palette, local_bindings).map(|mut c| {c.alpha = *p/100.0; c}),
+            ColorSpec::WithLightness(c, p) => c.resolve_b(palette, local_bindings).map(|mut c| {c.l = *p; c}),
             ColorSpec::Mix(a, b, f) => a.resolve_b(palette, local_bindings).and_then(|a| b.resolve_b(palette, local_bindings).map(|b| (a,b))).map(|(a,b)| a.mix(&b, *f)),
-            ColorSpec::Complement(c) => c.resolve_b(palette, local_bindings).map(|mut c| { c.hue += 180.0; return c;}),
+            ColorSpec::Complement(c) => c.resolve_b(palette, local_bindings).map(|mut c| { c.hue += 180.0; c}),
             ColorSpec::FnCall(name, args) => {
                 palette.functions.get(name).ok_or_else(|| anyhow!("unknown function {}", name))
                     .and_then(|f| {
@@ -120,10 +120,10 @@ impl<'s> ColorSpec<'s> {
     }
 }
 
-pub fn read_palette<'s>(src: &'s str) -> Result<Palette<'s>> {
+pub fn read_palette(src: &str) -> Result<Palette<'_>> {
     let mut p = Palette { colors: HashMap::new(), functions: HashMap::new() };
     for ln in src.lines() {
-        if ln.starts_with('#') || ln.len() == 0 { continue; }
+        if ln.starts_with('#') || ln.is_empty() { continue; }
         match color_parser::palette_def(ln)? {
             PaletteItem::Color(name, spec) => {
                 p.colors.insert(name, spec.resolve(&p)?);

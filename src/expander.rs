@@ -17,10 +17,8 @@ fn find_eligable_under(path: &Path, files: &mut Vec<PathBuf>) -> Result<()> {
         let entry = entry?;
         if entry.path().is_dir() {
             find_eligable_under(&entry.path(), files)?;
-        } else {
-            if entry.file_name().to_str().unwrap().ends_with(".uncol") {
-                files.push(entry.path())
-            }
+        } else if entry.file_name().to_str().unwrap().ends_with(".uncol") {
+            files.push(entry.path())
         }
     }
     Ok(())
