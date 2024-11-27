@@ -84,7 +84,7 @@ impl<'s> ColorSpec<'s> {
     }
 
     fn resolve_b(&self, palette: &Palette, local_bindings: Option<&HashMap<&'s str, Lcha>>) -> Result<Lcha> {
-        use palette::{FromColor, Shade, Saturate, Mix};
+        use palette::{FromColor, Lighten, Saturate, Mix};
         match self {
             ColorSpec::Id(i) => {
                 local_bindings.and_then(|lb| lb.get(*i).cloned())
@@ -97,12 +97,12 @@ impl<'s> ColorSpec<'s> {
                 } )
                 .ok_or(anyhow!("unknown color {}", n)),
             ColorSpec::Lch(c) => Ok(*c),
-            ColorSpec::Shade(c, p) => c.resolve_b(palette, local_bindings).map(|c| c.lighten(*p / 100.0)),
+            ColorSpec::Shade(c, p) => c.resolve_b(palette, local_bindings).map(|c| c.lighten_fixed(*p / 100.0)),
             ColorSpec::Saturate(c, p) => c.resolve_b(palette, local_bindings).map(|c| c.saturate(*p / 100.0)),
             ColorSpec::WithChroma(c, p) => c.resolve_b(palette, local_bindings).map(|mut c| {c.chroma = *p; c}),
             ColorSpec::WithAlpha(c, p) => c.resolve_b(palette, local_bindings).map(|mut c| {c.alpha = *p/100.0; c}),
             ColorSpec::WithLightness(c, p) => c.resolve_b(palette, local_bindings).map(|mut c| {c.l = *p; c}),
-            ColorSpec::Mix(a, b, f) => a.resolve_b(palette, local_bindings).and_then(|a| b.resolve_b(palette, local_bindings).map(|b| (a,b))).map(|(a,b)| a.mix(&b, *f)),
+            ColorSpec::Mix(a, b, f) => a.resolve_b(palette, local_bindings).and_then(|a| b.resolve_b(palette, local_bindings).map(|b| (a,b))).map(|(a,b)| a.mix(b, *f)),
             ColorSpec::Complement(c) => c.resolve_b(palette, local_bindings).map(|mut c| { c.hue += 180.0; c}),
             ColorSpec::FnCall(name, args) => {
                 palette.functions.get(name).ok_or_else(|| anyhow!("unknown function {}", name))

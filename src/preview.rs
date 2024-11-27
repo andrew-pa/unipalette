@@ -3,7 +3,7 @@ use anyhow::{Result, bail};
 use crate::palette::Palette;
 use std::io::Write;
 use crossterm::{queue, style::{Attribute, Color, Print, ResetColor, SetAttribute, SetBackgroundColor, SetForegroundColor}};
-use palette::{Clamp, FromColor};
+use palette::{Clamp, FromColor, Lighten};
 
 pub fn run(palette: &Palette, show_shades: bool, path: &std::path::Path) -> Result<()> {
     use palette::Shade;
@@ -19,7 +19,7 @@ pub fn run(palette: &Palette, show_shades: bool, path: &std::path::Path) -> Resu
 
     let mut colors: Vec<_> = palette.colors.iter().collect();
     // we need a way to keep dark colors and light colors seperate as well
-    colors.sort_by(|(n1,c1), (n2, c2)| match (c1.l*c1.hue.to_raw_degrees()).partial_cmp(&(c2.hue.to_raw_degrees()*c2.l)) {
+    colors.sort_by(|(n1,c1), (n2, c2)| match (c1.l*c1.hue.into_raw_degrees()).partial_cmp(&(c2.hue.into_raw_degrees()*c2.l)) {
         None | Some(std::cmp::Ordering::Equal) => { n1.cmp(n2) },
         o => o.unwrap()
     });
@@ -43,7 +43,7 @@ pub fn run(palette: &Palette, show_shades: bool, path: &std::path::Path) -> Resu
                 queue!(stdout, Print(" "))?;
             }
             for sh in shades {
-                let col = palette::Srgb::from_color(color.lighten(sh)).into_format().into_components();
+                let col = palette::Srgb::from_color(color.lighten_fixed(sh)).into_format().into_components();
                 queue!(stdout, SetForegroundColor(Color::Rgb {
                     r: col.0, g: col.1, b: col.2
                 }), Print("█████"))?;

@@ -64,9 +64,9 @@ pub fn fmt_color(col: crate::palette::Lcha, output_type: ColorOutputRep, with_al
         },
         ColorOutputRep::CssLch => {
             if with_alpha {
-                format!("lch({}% {} {} / {})", col.l, col.chroma, col.hue.to_positive_degrees(), col.alpha)
+                format!("lch({}% {} {} / {})", col.l, col.chroma, col.hue.into_positive_degrees(), col.alpha)
             } else {
-                format!("lch({}% {} {})", col.l, col.chroma, col.hue.to_positive_degrees())
+                format!("lch({}% {} {})", col.l, col.chroma, col.hue.into_positive_degrees())
             }
         }
     }
