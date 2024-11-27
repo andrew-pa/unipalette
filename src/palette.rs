@@ -92,7 +92,7 @@ impl<'s> ColorSpec<'s> {
             },
             ColorSpec::Named(n) => palette::named::from_str(n)
                 .map(|c| {
-                    let col = palette::Lch::from_color(c.into_format().into_linear());
+                    let col = palette::Lch::from_color(c.into_format());
                     Lcha::new(col.l, col.chroma, col.hue, 1.0)
                 } )
                 .ok_or(anyhow!("unknown color {}", n)),

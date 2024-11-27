@@ -1,18 +1,18 @@
 [package]
 name = "unipalette"
-version = "0.4.2"
+version = "0.4.3"
 edition = "2018"
 description = "Color macro system for unified system color themes across configuration files"
 authors = [ "Andrew Palmer <andrew.pa@outlook.com>" ]
 
 [dependencies]
 clap = { git = "https://github.com/clap-rs/clap", features=["derive", "default"] }
-anyhow = "1"
-crossterm = "0.20"
-palette = "0.6"
-serde = { version = "1", features = ["derive"] }
-toml = "0.5"
-rayon = "1"
-peg = "0.8"
-regex = "1.5"
-lazy_static = "1.4"
+anyhow = "^1"
+crossterm = "0.28"
+palette = "^0.7"
+serde = { version = "^1", features = ["derive"] }
+toml = "^0.8"
+rayon = "^1"
+peg = "^0.8"
+regex = "^1"
+lazy_static = "^1"

@@ -6,7 +6,6 @@ use crossterm::{queue, style::{Attribute, Color, Print, ResetColor, SetAttribute
 use palette::{Clamp, FromColor, Lighten};
 
 pub fn run(palette: &Palette, show_shades: bool, path: &std::path::Path) -> Result<()> {
-    use palette::Shade;
     let mut stdout = std::io::stdout();
 
     queue!(stdout, SetAttribute(Attribute::Bold),
